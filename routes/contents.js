@@ -1,79 +1,25 @@
 const express = require("express");
-const client = require("../config/connection.js")
+const query = require("./functions/get")
 const router = express.Router();
 
-function createValuesIds(vals) {
-    let ids = '';
-    for (let i = 0; i < vals.length; i++) {
-        ids += i === 0 ? '$1' : `, $${i + 1}`;
-    }
-    return ids;
-}
-
-function mapToUpdate(body) {
-    let ids = '';
-    for (let i = 0; i < Object.entries(body).length; i++) {
-        key = Object.entries(body)[i][0]
-        val = Object.entries(body)[i][1]
-        ids += i === 0 ? key+'=$1' : `,${key} = $${i + 1}`;
-    }
-    return ids;
-    // return Object.entries(body).map((e) => {
-    //     return e[0] + " = " + e[1]})
-}
-
 router.get("/", function (req, res) {
-    client.query('SELECT * FROM public.contents', (error, results) => {
-        if (error) {
-            res.status(406).json({ error: error })
-        } else {
-            res.status(200).json(results.rows)
-        }
-    })
+    query.get("contents", res)
 });
 
 router.get("/:id", function (req, res) {
-    client.query('SELECT * FROM public.contents WHERE id=$1', [req.params.id], (error, results) => {
-        if (error) {
-            res.status(406).json({ error: error })
-        } else {
-            res.status(200).json(results.rows)
-        }
-    })
+    query.getById("contents", res, req.params.id)
 });
 
 router.post("/", function (req, res) {
-    const body = req.body
-    client.query(`INSERT INTO public.contents (${Object.keys(body).join(",")}) VALUES (${createValuesIds(Object.values(body))}) RETURNING *`, Object.values(body), (error, results) => {
-        if (error) {
-            res.status(406).json({ error: error })
-        } else {
-            res.status(200).json(results.rows)
-        }
-    })
+    query.post("contents", res, req.body)        
 });
 
 router.put("/:id", function (req, res) {
-    const body = req.body
-    const id = req.params.id
-    client.query(`UPDATE public.contents SET ${mapToUpdate(body)} WHERE id=$${Object.entries(body).length+1} RETURNING *`, Object.values(body).concat(id), (error, results) => {
-        if (error) {
-            console.log(error)
-            res.status(406).json({ error: error })
-        } else {
-            res.status(200).json(results.rows)
-        }
-    })
+    query.put("contents", res, req.body, req.params.id)
 });
 
 router.delete("/:id", function (req, res) {
-    client.query('DELETE FROM public.contents WHERE id = $1', [req.params.id], (error, results) => {
-        if (error) {
-            res.status(406).json({ error: error })
-        } else {
-            res.status(200).json(results.rows)
-        }
-    })
+    query.deleteRecord("contents", res, req.params.id)
 });
 
 module.exports = router;
