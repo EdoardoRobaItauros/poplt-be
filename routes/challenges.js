@@ -1,5 +1,5 @@
 const express = require("express");
-const query = require("./functions/get")
+const query = require("./functions/queries")
 const router = express.Router();
 
 router.get("/", function (req, res) {
@@ -11,7 +11,7 @@ router.get("/:id", function (req, res) {
 });
 
 router.post("/", function (req, res) {
-    query.post("challenges", res, req.body)        
+    query.post("challenges", res, req.body)
 });
 
 router.put("/:id", function (req, res) {
