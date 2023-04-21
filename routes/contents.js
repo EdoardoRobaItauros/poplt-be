@@ -23,11 +23,11 @@ router.post("/", function (req, res) {
 });
 
 router.put("/:id", function (req, res) {
-    query.putSingleColumn("contents", res, req.body, req.params.id)
+    query.putSingleColumn("contents", res, req.body, req.params.id, "id")
 });
 
 router.delete("/:id", function (req, res) {
-    query.deleteRecord("contents", res, req.params.id)
+    query.deleteRecord("contents", res, req.params.id, "id")
 });
 
 module.exports = router;

@@ -44,7 +44,7 @@ function getWithPaginationAndJoin(table, res, pageNum, itemsPerPage, tablesToJoi
 }
 
 function getBySearch(table, res, queryObject, orderedBy) {
-    client.query(`SELECT * FROM public.${table} WHERE ${Object.entries(queryObject).map((e, index) => e[0] + "=$" + (index+1).toString()).join(" AND ")} ${orderedBy}`, Object.values(queryObject), (error, results) => {
+    client.query(`SELECT * FROM public.${table} WHERE ${Object.entries(queryObject).map((e, index) => e[0] + "=$" + (index + 1).toString()).join(" AND ")} ${orderedBy}`, Object.values(queryObject), (error, results) => {
         if (error) {
             console.error(error)
             res.status(406).json({ error: error })
@@ -59,6 +59,9 @@ function getById(table, res, id, columnId) {
         if (error) {
             console.error(error)
             res.status(406).json({ error: error })
+        } else if (results.rows.length === 0) {
+            console.error("Element with id: ", id, " not found.")
+            res.status(404).json({ error: "Element with id: " + id + " not found." })
         } else {
             res.status(200).json(results.rows)
         }
@@ -76,8 +79,8 @@ function post(table, res, body) {
     })
 }
 
-function put(table, res, body, id) {
-    client.query(`UPDATE public.${table} SET ${mapToUpdate(body)} WHERE id=$${Object.entries(body).length + 1} RETURNING *`, Object.values(body).concat(id), (error, results) => {
+function put(table, res, body, id, columnId) {
+    client.query(`UPDATE public.${table} SET ${mapToUpdate(body)} WHERE ${columnId}=$${Object.entries(body).length + 1} RETURNING *`, Object.values(body).concat(id), (error, results) => {
         if (error) {
             console.error(error)
             res.status(406).json({ error: error })
@@ -87,8 +90,8 @@ function put(table, res, body, id) {
     })
 }
 
-function putSingleColumn(table, res, body, id) {
-    client.query(`UPDATE public.${table} SET ${mapToUpdate(body)} WHERE id=$${Object.entries(body).length + 1} RETURNING *`, Object.values(body).concat(id), (error, results) => {
+function putSingleColumn(table, res, body, id, columnId) {
+    client.query(`UPDATE public.${table} SET ${mapToUpdate(body)} WHERE ${columnId}=$${Object.entries(body).length + 1} RETURNING *`, Object.values(body).concat(id), (error, results) => {
         if (error) {
             console.error(error)
             res.status(406).json({ error: error })
@@ -98,8 +101,8 @@ function putSingleColumn(table, res, body, id) {
     })
 }
 
-function deleteRecord(table, res, id) {
-    client.query(`DELETE FROM public.${table} WHERE id = $1`, [id], (error, results) => {
+function deleteRecord(table, res, id, columnId) {
+    client.query(`DELETE FROM public.${table} WHERE ${columnId} = $1`, [id], (error, results) => {
         if (error) {
             console.error(error)
             res.status(406).json({ error: error })

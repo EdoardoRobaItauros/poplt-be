@@ -15,11 +15,11 @@ router.post("/", function (req, res) {
 });
 
 router.put("/:id", function (req, res) {
-    query.put("users", res, req.body, req.params.id)
+    query.put("users", res, req.body, req.params.id, "user_id")
 });
 
 router.delete("/:id", function (req, res) {
-    query.deleteRecord("users", res, req.params.id)
+    query.deleteRecord("users", res, req.params.id, "user_id")
 });
 
 module.exports = router;

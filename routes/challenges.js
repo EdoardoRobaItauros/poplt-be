@@ -15,11 +15,11 @@ router.post("/", function (req, res) {
 });
 
 router.put("/:id", function (req, res) {
-    query.put("challenges", res, req.body, req.params.id)
+    query.put("challenges", res, req.body, req.params.id, "challenge_id")
 });
 
 router.delete("/:id", function (req, res) {
-    query.deleteRecord("challenges", res, req.params.id)
+    query.deleteRecord("challenges", res, req.params.id, "challenge_id")
 });
 
 module.exports = router;
