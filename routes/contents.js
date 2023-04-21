@@ -1,5 +1,5 @@
 const express = require("express");
-const query = require("./functions/queries")
+const query = require("../services/queryService")
 const router = express.Router();
 
 router.get("/", function (req, res) {
@@ -8,8 +8,14 @@ router.get("/", function (req, res) {
     query.getWithPaginationAndJoin("contents", res, pageNum, itemsPerPage, [{ tableName: "users", fk: "user_id" }, { tableName: "challenges", fk: "challenge_id" }])
 });
 
+router.get("/find-by-search", function (req, res) {
+    const orderedBy = req.query.orderedBy ? `ORDER BY ${req.query.orderedBy} DESC` : ""
+    delete req.query.orderedBy
+    query.getBySearch("contents", res, req.query, orderedBy)
+});
+
 router.get("/:id", function (req, res) {
-    query.getById("contents", res, req.params.id)
+    query.getById("contents", res, req.params.id, "id")
 });
 
 router.post("/", function (req, res) {
@@ -17,7 +23,7 @@ router.post("/", function (req, res) {
 });
 
 router.put("/:id", function (req, res) {
-    query.put("contents", res, req.body, req.params.id)
+    query.putSingleColumn("contents", res, req.body, req.params.id)
 });
 
 router.delete("/:id", function (req, res) {

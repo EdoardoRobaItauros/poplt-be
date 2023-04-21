@@ -1,5 +1,5 @@
 const express = require("express");
-const query = require("./functions/queries")
+const query = require("../services/queryService")
 const router = express.Router();
 
 router.get("/", function (req, res) {
@@ -7,7 +7,7 @@ router.get("/", function (req, res) {
 });
 
 router.get("/:id", function (req, res) {
-    query.getById("users", res, req.params.id)
+    query.getById("users", res, req.params.id, "user_id")
 });
 
 router.post("/", function (req, res) {

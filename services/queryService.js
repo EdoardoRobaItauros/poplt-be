@@ -1,4 +1,4 @@
-const client = require("../../config/connection.js")
+const client = require("../config/connection.js")
 
 function createValuesIds(vals) {
     let ids = '';
@@ -13,7 +13,7 @@ function mapToUpdate(body) {
     for (let i = 0; i < Object.entries(body).length; i++) {
         key = Object.entries(body)[i][0]
         val = Object.entries(body)[i][1]
-        ids += i === 0 ? key + '=$1' : `,${key} = $${i + 1}`;
+        ids += i === 0 ? '"' + key + '"=$1' : `,${key} = $${i + 1}`;
     }
     return ids;
     // return Object.entries(body).map((e) => {
@@ -23,6 +23,7 @@ function mapToUpdate(body) {
 function get(table, res) {
     client.query(`SELECT * FROM public.${table}`, (error, results) => {
         if (error) {
+            console.error(error)
             res.status(406).json({ error: error })
         } else {
             res.status(200).json(results.rows)
@@ -31,9 +32,10 @@ function get(table, res) {
 }
 
 function getWithPaginationAndJoin(table, res, pageNum, itemsPerPage, tablesToJoin) {
-    const join = `JOIN public.tableNameToJoin ON public.tableNameToJoin."id" = public.contents."fk"`
-    client.query(`SELECT * FROM public.${table} ${tablesToJoin.map((t) => join.replaceAll("tableNameToJoin", t.tableName).replace("fk", t.fk)).join(" ")} LIMIT ${itemsPerPage} OFFSET ${(pageNum) * itemsPerPage}`, (error, results) => {
+    const join = `LEFT JOIN public.tableNameToJoin ON public.${table}."fk" = public.tableNameToJoin."fk"`
+    client.query(`SELECT * FROM public.${table} ${tablesToJoin.map((t) => join.replaceAll("tableNameToJoin", t.tableName).replaceAll("fk", t.fk)).join(" ")} LIMIT ${itemsPerPage} OFFSET ${(pageNum) * itemsPerPage}`, (error, results) => {
         if (error) {
+            console.error(error)
             res.status(406).json({ error: error })
         } else {
             res.status(200).json(results.rows)
@@ -41,9 +43,21 @@ function getWithPaginationAndJoin(table, res, pageNum, itemsPerPage, tablesToJoi
     })
 }
 
-function getById(table, res, id) {
-    client.query(`SELECT * FROM public.${table} WHERE id=$1`, [id], (error, results) => {
+function getBySearch(table, res, queryObject, orderedBy) {
+    client.query(`SELECT * FROM public.${table} WHERE ${Object.entries(queryObject).map((e, index) => e[0] + "=$" + (index+1).toString()).join(" AND ")} ${orderedBy}`, Object.values(queryObject), (error, results) => {
         if (error) {
+            console.error(error)
+            res.status(406).json({ error: error })
+        } else {
+            res.status(200).json(results.rows)
+        }
+    })
+}
+
+function getById(table, res, id, columnId) {
+    client.query(`SELECT * FROM public.${table} WHERE ${columnId}=$1`, [id], (error, results) => {
+        if (error) {
+            console.error(error)
             res.status(406).json({ error: error })
         } else {
             res.status(200).json(results.rows)
@@ -54,6 +68,7 @@ function getById(table, res, id) {
 function post(table, res, body) {
     client.query(`INSERT INTO public.${table} (${Object.keys(body).join(",")}) VALUES (${createValuesIds(Object.values(body))}) RETURNING *`, Object.values(body), (error, results) => {
         if (error) {
+            console.error(error)
             res.status(406).json({ error: error })
         } else {
             res.status(200).json(results.rows)
@@ -64,7 +79,18 @@ function post(table, res, body) {
 function put(table, res, body, id) {
     client.query(`UPDATE public.${table} SET ${mapToUpdate(body)} WHERE id=$${Object.entries(body).length + 1} RETURNING *`, Object.values(body).concat(id), (error, results) => {
         if (error) {
-            console.log(error)
+            console.error(error)
+            res.status(406).json({ error: error })
+        } else {
+            res.status(200).json(results.rows)
+        }
+    })
+}
+
+function putSingleColumn(table, res, body, id) {
+    client.query(`UPDATE public.${table} SET ${mapToUpdate(body)} WHERE id=$${Object.entries(body).length + 1} RETURNING *`, Object.values(body).concat(id), (error, results) => {
+        if (error) {
+            console.error(error)
             res.status(406).json({ error: error })
         } else {
             res.status(200).json(results.rows)
@@ -75,6 +101,7 @@ function put(table, res, body, id) {
 function deleteRecord(table, res, id) {
     client.query(`DELETE FROM public.${table} WHERE id = $1`, [id], (error, results) => {
         if (error) {
+            console.error(error)
             res.status(406).json({ error: error })
         } else {
             res.status(200).json(results.rows)
@@ -82,4 +109,4 @@ function deleteRecord(table, res, id) {
     })
 }
 
-module.exports = { get, getWithPaginationAndJoin, getById, post, put, deleteRecord };
+module.exports = { get, getWithPaginationAndJoin, getById, getBySearch, post, put, putSingleColumn, deleteRecord };
