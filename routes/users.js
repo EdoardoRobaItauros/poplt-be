@@ -1,25 +1,26 @@
 const express = require("express");
-const query = require("../services/queryService")
+const usersService = require("../services/usersService")
 const router = express.Router();
+const tableName = "users"
 
 router.get("/", function (req, res) {
-    query.get("users", res)
+    usersService.get(tableName, res)
 });
 
 router.get("/:id", function (req, res) {
-    query.getById("users", res, req.params.id, "user_id")
+    usersService.getById(tableName, res, req.params.id, "user_id")
 });
 
 router.post("/", function (req, res) {
-    query.post("users", res, req.body)
+    usersService.post(tableName, res, req.body)
 });
 
 router.put("/:id", function (req, res) {
-    query.put("users", res, req.body, req.params.id, "user_id")
+    usersService.put(tableName, res, req.body, req.params.id, "user_id")
 });
 
 router.delete("/:id", function (req, res) {
-    query.deleteRecord("users", res, req.params.id, "user_id")
+    usersService.deleteRecord(tableName, res, req.params.id, "user_id")
 });
 
 module.exports = router;
