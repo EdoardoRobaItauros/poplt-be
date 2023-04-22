@@ -3,24 +3,29 @@ const usersService = require("../services/usersService")
 const router = express.Router();
 const tableName = "users"
 
-router.get("/", function (req, res) {
-    usersService.get(tableName, res)
+router.get("/", async function (req, res) {
+    const response = await usersService.get(tableName)
+    res.status(response.statusCode).json(response)
 });
 
-router.get("/:id", function (req, res) {
-    usersService.getById(tableName, res, req.params.id, "user_id")
+router.get("/:id", async function (req, res) {
+    const response = await usersService.getById(tableName, req.params.id, "user_id")
+    res.status(response.statusCode).json(response)
 });
 
-router.post("/", function (req, res) {
-    usersService.post(tableName, res, req.body)
+router.post("/", async function (req, res) {
+    const response = await usersService.post(tableName, req.body)
+    res.status(response.statusCode).json(response)
 });
 
-router.put("/:id", function (req, res) {
-    usersService.put(tableName, res, req.body, req.params.id, "user_id")
+router.put("/:id", async function (req, res) {
+    const response = await usersService.put(tableName, req.body, req.params.id, "user_id")
+    res.status(response.statusCode).json(response)
 });
 
-router.delete("/:id", function (req, res) {
-    usersService.deleteRecord(tableName, res, req.params.id, "user_id")
+router.delete("/:id", async function (req, res) {
+    const response = await usersService.deleteRecord(tableName, req.params.id, "user_id")
+    res.status(response.statusCode).json(response)
 });
 
 module.exports = router;

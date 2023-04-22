@@ -3,28 +3,34 @@ const contentsService = require("../services/contentsService")
 const router = express.Router();
 const tableName = "contents"
 
-router.get("/", function (req, res) {
-    contentsService.getWithPaginationAndJoin(tableName, req, res)
+router.get("/", async function (req, res) {
+    const response = await contentsService.getWithPaginationAndJoin(tableName, req)
+    res.status(response.statusCode).json(response)
 });
 
-router.get("/find-by-search", function (req, res) {
-    contentsService.getBySearch(tableName, req, res)
+router.get("/find-by-search", async function (req, res) {
+    const response = await contentsService.getBySearch(tableName, req)
+    res.status(response.statusCode).json(response)
 });
 
-router.get("/:id", function (req, res) {
-    contentsService.getById(tableName, res, req.params.id, "id")
+router.get("/:id", async function (req, res) {
+    const response = await contentsService.getById(tableName, req.params.id, "id")
+    res.status(response.statusCode).json(response)
 });
 
-router.post("/", function (req, res) {
-    contentsService.post(tableName, res, req.body)
+router.post("/", async function (req, res) {
+    const response = await contentsService.post(tableName, req.body)
+    res.status(response.statusCode).json(response)
 });
 
-router.put("/:id", function (req, res) {
-    contentsService.putSingleColumn(tableName, res, req.body, req.params.id, "id")
+router.put("/:id", async function (req, res) {
+    const response = await contentsService.putSingleColumn(tableName, req.body, req.params.id, "id")
+    res.status(response.statusCode).json(response)
 });
 
-router.delete("/:id", function (req, res) {
-    contentsService.deleteRecord(tableName, res, req.params.id, "id")
+router.delete("/:id", async function (req, res) {
+    const response = await contentsService.deleteRecord(tableName, req.params.id, "id")
+    res.status(response.statusCode).json(response)
 });
 
 module.exports = router;
