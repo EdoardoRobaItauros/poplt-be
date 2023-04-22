@@ -1,4 +1,3 @@
-const client = require("../config/connection.js")
 
 function createValuesIds(vals) {
     let ids = '';
@@ -20,23 +19,13 @@ function mapToUpdate(body) {
     //     return e[0] + " = " + e[1]})
 }
 
-async function executeQuery(query, params) {
-    // client.query(query, params, (error, results) => {
-    //     if (error) {
-    //         console.error(error)
-    //         return { error: error, statusCode: 406 }
-    //     } else {
-    //         return { data: results.rows, statusCode: 200 }
-    //     }
-    // })
+async function executeQuery(query, params, client) {
     try {
         const results = await client.query(query, params)
         return { data: results.rows, statusCode: 200 }
     } catch (e) {
         return { errorMessage: e.toString(), statusCode: 406 }
     }
-    // .then(results => { resp = { data: results.rows, statusCode: 200 } })
-    // .catch(e => { resp = { error: e, statusCode: 406 } })
 
 }
 
